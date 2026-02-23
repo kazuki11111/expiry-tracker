@@ -36,6 +36,12 @@ export function useProducts(includeConsumed = false) {
     }
   };
 
+  const deleteByPurchaseDate = async (purchaseDate: string) => {
+    const targets = await db.products.filter((p) => p.purchaseDate === purchaseDate).toArray();
+    const ids = targets.map((p) => p.id!);
+    return db.products.bulkDelete(ids);
+  };
+
   const addProducts = async (products: Omit<Product, 'id' | 'createdAt'>[]) => {
     const now = new Date().toISOString();
     return db.products.bulkAdd(
@@ -49,6 +55,7 @@ export function useProducts(includeConsumed = false) {
     addProducts,
     updateProduct,
     deleteProduct,
+    deleteByPurchaseDate,
     toggleConsumed,
   };
 }

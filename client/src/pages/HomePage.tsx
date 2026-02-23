@@ -16,7 +16,7 @@ function formatDateHeader(dateStr: string): string {
 export function HomePage() {
   const [showConsumed, setShowConsumed] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const { products, toggleConsumed, deleteProduct, updateProduct } = useProducts(showConsumed);
+  const { products, toggleConsumed, deleteProduct, deleteByPurchaseDate, updateProduct } = useProducts(showConsumed);
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
 
   const toggleCollapse = useCallback((date: string) => {
@@ -111,20 +111,33 @@ export function HomePage() {
             const isCollapsed = collapsedDates.has(group.date);
             return (
               <div key={group.date}>
-                <button
-                  onClick={() => toggleCollapse(group.date)}
-                  className="mb-2 flex w-full items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 active:bg-gray-200"
-                >
-                  <span className={`text-xs text-gray-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}>
-                    ▶
-                  </span>
-                  <span className="text-sm font-medium text-gray-700">
-                    {group.label} 購入
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {group.items.length}件
-                  </span>
-                </button>
+                <div className="mb-2 flex items-center gap-1">
+                  <button
+                    onClick={() => toggleCollapse(group.date)}
+                    className="flex flex-1 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 active:bg-gray-200"
+                  >
+                    <span className={`text-xs text-gray-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}>
+                      ▶
+                    </span>
+                    <span className="text-sm font-medium text-gray-700">
+                      {group.label} 購入
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {group.items.length}件
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`${group.label}に購入した${group.items.length}件の商品をすべて削除しますか？`)) {
+                        deleteByPurchaseDate(group.date);
+                      }
+                    }}
+                    className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100"
+                    title="この日の商品をすべて削除"
+                  >
+                    <span className="text-sm">✕</span>
+                  </button>
+                </div>
                 {!isCollapsed && (
                   <div className="space-y-3">
                     {group.items.map((product) => (
