@@ -1,4 +1,4 @@
-const CACHE_NAME = 'expiry-manager-v1';
+const CACHE_NAME = 'mottainai-v2';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -21,21 +21,34 @@ self.addEventListener('fetch', (event) => {
   // API calls should not be cached
   if (event.request.url.includes('/api/')) return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request)
+  // HTML (navigation requests): network first, fallback to cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
         .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, clone);
-            });
-          }
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
           return response;
         })
-        .catch(() => cached);
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
-      return cached || fetchPromise;
-    })
+  // Static assets (JS, CSS, images): network first, fallback to cache
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
