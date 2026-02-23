@@ -4,13 +4,10 @@ import type { Product } from '../types';
 
 export function useProducts(includeConsumed = false) {
   const products = useLiveQuery(async () => {
-    let query = db.products.orderBy('expiryDate');
-    if (!includeConsumed) {
-      query = query.filter((p) => !p.consumed);
-    }
-    const results = await query.toArray();
+    const all = await db.products.toArray();
+    const filtered = includeConsumed ? all : all.filter((p) => !p.consumed);
     // Sort by purchaseDate (newest first), then expiryDate (soonest first)
-    return results.sort((a, b) => {
+    return filtered.sort((a, b) => {
       const dateCmp = b.purchaseDate.localeCompare(a.purchaseDate);
       if (dateCmp !== 0) return dateCmp;
       return a.expiryDate.localeCompare(b.expiryDate);
