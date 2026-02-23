@@ -133,7 +133,7 @@ export function SettingsPage() {
           <button
             onClick={async () => {
               if (confirm('消費済みの商品をすべて削除しますか？')) {
-                await db.products.where('consumed').equals(1).delete();
+                await db.products.filter((p) => p.consumed).delete();
               }
             }}
             className="text-sm text-red-500 hover:underline"
