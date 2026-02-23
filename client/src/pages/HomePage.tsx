@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 import { ProductForm } from '../components/ProductForm';
@@ -17,6 +17,19 @@ export function HomePage() {
   const [showConsumed, setShowConsumed] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { products, toggleConsumed, deleteProduct, updateProduct } = useProducts(showConsumed);
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
+
+  const toggleCollapse = useCallback((date: string) => {
+    setCollapsedDates((prev) => {
+      const next = new Set(prev);
+      if (next.has(date)) {
+        next.delete(date);
+      } else {
+        next.add(date);
+      }
+      return next;
+    });
+  }, []);
 
   const groupedProducts = useMemo(() => {
     const groups: { date: string; label: string; items: Product[] }[] = [];
@@ -93,29 +106,41 @@ export function HomePage() {
           <p className="text-sm">レシートをスキャンするか、手動で追加してください</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {groupedProducts.map((group) => (
-            <div key={group.date}>
-              <div className="mb-2 flex items-center gap-2">
-                <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-xs font-medium text-gray-500">
-                  {group.label} 購入
-                </span>
-                <div className="h-px flex-1 bg-gray-200" />
+        <div className="space-y-3">
+          {groupedProducts.map((group) => {
+            const isCollapsed = collapsedDates.has(group.date);
+            return (
+              <div key={group.date}>
+                <button
+                  onClick={() => toggleCollapse(group.date)}
+                  className="mb-2 flex w-full items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 active:bg-gray-200"
+                >
+                  <span className={`text-xs text-gray-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}>
+                    ▶
+                  </span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {group.label} 購入
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {group.items.length}件
+                  </span>
+                </button>
+                {!isCollapsed && (
+                  <div className="space-y-3">
+                    {group.items.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onToggleConsumed={toggleConsumed}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="space-y-3">
-                {group.items.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onToggleConsumed={toggleConsumed}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

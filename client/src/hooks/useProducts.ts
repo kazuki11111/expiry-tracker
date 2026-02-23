@@ -6,9 +6,9 @@ export function useProducts(includeConsumed = false) {
   const products = useLiveQuery(async () => {
     const all = await db.products.toArray();
     const filtered = includeConsumed ? all : all.filter((p) => !p.consumed);
-    // Sort by purchaseDate (newest first), then expiryDate (soonest first)
+    // Sort by purchaseDate (oldest first), then expiryDate (soonest first)
     return filtered.sort((a, b) => {
-      const dateCmp = b.purchaseDate.localeCompare(a.purchaseDate);
+      const dateCmp = a.purchaseDate.localeCompare(b.purchaseDate);
       if (dateCmp !== 0) return dateCmp;
       return a.expiryDate.localeCompare(b.expiryDate);
     });
