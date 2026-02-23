@@ -8,7 +8,13 @@ export function useProducts(includeConsumed = false) {
     if (!includeConsumed) {
       query = query.filter((p) => !p.consumed);
     }
-    return query.toArray();
+    const results = await query.toArray();
+    // Sort by purchaseDate (newest first), then expiryDate (soonest first)
+    return results.sort((a, b) => {
+      const dateCmp = b.purchaseDate.localeCompare(a.purchaseDate);
+      if (dateCmp !== 0) return dateCmp;
+      return a.expiryDate.localeCompare(b.expiryDate);
+    });
   }, [includeConsumed]);
 
   const addProduct = async (product: Omit<Product, 'id' | 'createdAt'>) => {

@@ -1,13 +1,39 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 import { ProductForm } from '../components/ProductForm';
 import type { Product } from '../types';
 
+function formatDateHeader(dateStr: string): string {
+  const date = new Date(dateStr + 'T00:00:00');
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  const weekday = weekdays[date.getDay()];
+  return `${month}月${day}日（${weekday}）`;
+}
+
 export function HomePage() {
   const [showConsumed, setShowConsumed] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { products, toggleConsumed, deleteProduct, updateProduct } = useProducts(showConsumed);
+
+  const groupedProducts = useMemo(() => {
+    const groups: { date: string; label: string; items: Product[] }[] = [];
+    for (const product of products) {
+      const last = groups[groups.length - 1];
+      if (last && last.date === product.purchaseDate) {
+        last.items.push(product);
+      } else {
+        groups.push({
+          date: product.purchaseDate,
+          label: formatDateHeader(product.purchaseDate),
+          items: [product],
+        });
+      }
+    }
+    return groups;
+  }, [products]);
 
   const handleDelete = (id: number) => {
     if (confirm('この商品を削除しますか？')) {
@@ -67,15 +93,28 @@ export function HomePage() {
           <p className="text-sm">レシートをスキャンするか、手動で追加してください</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onToggleConsumed={toggleConsumed}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-            />
+        <div className="space-y-4">
+          {groupedProducts.map((group) => (
+            <div key={group.date}>
+              <div className="mb-2 flex items-center gap-2">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs font-medium text-gray-500">
+                  {group.label} 購入
+                </span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+              <div className="space-y-3">
+                {group.items.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onToggleConsumed={toggleConsumed}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       )}
