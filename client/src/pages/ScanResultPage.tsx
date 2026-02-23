@@ -34,6 +34,7 @@ export function ScanResultPage() {
     }));
   });
 
+  const [purchaseDate, setPurchaseDate] = useState(today);
   const [storeName] = useState(ocrResult?.storeName ?? '');
 
   if (!ocrResult) {
@@ -48,13 +49,24 @@ export function ScanResultPage() {
         const updated = { ...item, ...changes };
         // カテゴリが変更されたら期限を再推定
         if (changes.category && !('expiryDate' in changes)) {
-          updated.expiryDate = estimateExpiryDate(changes.category, today);
+          updated.expiryDate = estimateExpiryDate(changes.category, purchaseDate);
           updated.isExpiryEstimated = true;
         }
         if (changes.expiryDate) {
           updated.isExpiryEstimated = false;
         }
         return updated;
+      })
+    );
+  };
+
+  const handlePurchaseDateChange = (newDate: string) => {
+    setPurchaseDate(newDate);
+    // 推定期限を新しい購入日で再計算
+    setItems((prev) =>
+      prev.map((item) => {
+        if (!item.isExpiryEstimated) return item;
+        return { ...item, expiryDate: estimateExpiryDate(item.category, newDate) };
       })
     );
   };
@@ -67,7 +79,7 @@ export function ScanResultPage() {
     const products: Omit<Product, 'id' | 'createdAt'>[] = items.map((item) => ({
       name: item.name,
       category: item.category,
-      purchaseDate: today,
+      purchaseDate,
       expiryDate: item.expiryDate,
       isExpiryEstimated: item.isExpiryEstimated,
       quantity: item.quantity,
@@ -83,6 +95,15 @@ export function ScanResultPage() {
       {storeName && (
         <p className="mb-4 text-sm text-gray-500">店舗: {storeName}</p>
       )}
+      <div className="mb-4 rounded-lg border bg-white p-3 shadow-sm">
+        <label className="mb-1 block text-sm font-medium text-gray-700">購入日</label>
+        <input
+          type="date"
+          value={purchaseDate}
+          onChange={(e) => handlePurchaseDateChange(e.target.value)}
+          className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+        />
+      </div>
       <p className="mb-4 text-sm text-gray-500">
         内容を確認・修正して保存してください（{items.length}件）
       </p>

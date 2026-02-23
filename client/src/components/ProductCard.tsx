@@ -29,8 +29,9 @@ export function ProductCard({ product, onToggleConsumed, onDelete, onEdit }: Pro
               <span className="text-xs text-blue-500">期限推定</span>
             )}
           </div>
-          <div className="mt-1 text-xs text-gray-400">
-            期限: {product.expiryDate}
+          <div className="mt-1 flex gap-3 text-xs text-gray-400">
+            <span>購入: {product.purchaseDate}</span>
+            <span>期限: {product.expiryDate}</span>
           </div>
         </div>
         <div className="flex gap-1">
