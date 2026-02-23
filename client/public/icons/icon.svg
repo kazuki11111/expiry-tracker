@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Background rounded rectangle -->
+  <rect x="12" y="12" width="168" height="168" rx="32" ry="32" fill="#009688"/>
+
+  <!-- Receipt body -->
+  <path d="M45,32 L120,32 L120,160 L115,152 L110,160 L105,152 L100,160 L95,152 L90,160 L85,152 L80,160 L75,152 L70,160 L65,152 L60,160 L55,152 L50,160 L45,152 Z"
+        fill="white" opacity="0.95"/>
+
+  <!-- Receipt lines (text placeholders) -->
+  <line x1="57" y1="55" x2="108" y2="55" stroke="#009688" stroke-width="4" stroke-linecap="round"/>
+  <line x1="57" y1="75" x2="108" y2="75" stroke="#009688" stroke-width="4" stroke-linecap="round"/>
+  <line x1="57" y1="95" x2="95" y2="95" stroke="#009688" stroke-width="4" stroke-linecap="round"/>
+  <line x1="57" y1="115" x2="108" y2="115" stroke="#009688" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Clock circle background -->
+  <circle cx="138" cy="128" r="38" fill="#00796B"/>
+  <!-- Clock circle border -->
+  <circle cx="138" cy="128" r="35" fill="none" stroke="white" stroke-width="4"/>
+  <!-- Clock center dot -->
+  <circle cx="138" cy="128" r="3" fill="white"/>
+  <!-- Clock hour hand (pointing to ~2) -->
+  <line x1="138" y1="128" x2="155" y2="118" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <!-- Clock minute hand (pointing to 12) -->
+  <line x1="138" y1="128" x2="138" y2="100" stroke="white" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Small tick marks on clock -->
+  <line x1="138" y1="95" x2="138" y2="99" stroke="white" stroke-width="2"/>
+  <line x1="138" y1="157" x2="138" y2="161" stroke="white" stroke-width="2"/>
+  <line x1="105" y1="128" x2="109" y2="128" stroke="white" stroke-width="2"/>
+  <line x1="167" y1="128" x2="171" y2="128" stroke="white" stroke-width="2"/>
+</svg>
