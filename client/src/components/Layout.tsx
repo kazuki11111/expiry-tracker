@@ -12,7 +12,7 @@ export function Layout() {
     <div className="mx-auto flex min-h-screen max-w-lg flex-col bg-gray-50">
       <header className="sticky top-0 z-10 border-b bg-white px-4 py-3 shadow-sm">
         <h1 className="text-center text-lg font-bold text-gray-800">
-          賞味期限マネージャー
+          もったいないアラーム
         </h1>
       </header>
 

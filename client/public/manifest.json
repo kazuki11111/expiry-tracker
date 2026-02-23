@@ -1,6 +1,6 @@
 {
-  "name": "賞味期限マネージャー",
-  "short_name": "期限管理",
+  "name": "もったいないアラーム",
+  "short_name": "もったいない",
   "description": "レシートから商品を読み取り、賞味期限を管理するアプリ",
   "start_url": "/",
   "display": "standalone",

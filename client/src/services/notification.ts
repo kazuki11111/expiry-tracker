@@ -30,7 +30,7 @@ export async function checkAndNotify(): Promise<void> {
 
     for (const threshold of settings.notifyDaysBefore) {
       if (daysLeft === threshold) {
-        new Notification('賞味期限マネージャー', {
+        new Notification('もったいないアラーム', {
           body: `${product.name} の賞味期限が${threshold}日後です`,
           icon: '/icons/icon-192.png',
           tag: `expiry-${product.id}-${threshold}`,
@@ -39,7 +39,7 @@ export async function checkAndNotify(): Promise<void> {
     }
 
     if (daysLeft === 0) {
-      new Notification('賞味期限マネージャー', {
+      new Notification('もったいないアラーム', {
         body: `${product.name} の賞味期限は今日です！`,
         icon: '/icons/icon-192.png',
         tag: `expiry-${product.id}-today`,
@@ -47,7 +47,7 @@ export async function checkAndNotify(): Promise<void> {
     }
 
     if (daysLeft < 0) {
-      new Notification('賞味期限マネージャー', {
+      new Notification('もったいないアラーム', {
         body: `${product.name} の賞味期限が${Math.abs(daysLeft)}日過ぎています`,
         icon: '/icons/icon-192.png',
         tag: `expiry-${product.id}-expired`,
