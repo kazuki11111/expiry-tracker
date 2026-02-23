@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { db, getSettings } from '../db';
 import type { Settings } from '../types';
-import { requestNotificationPermission } from '../services/notification';
+import { requestNotificationPermission, getNotificationSupport } from '../services/notification';
 
 export function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | 'unsupported'>('default');
+  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | 'unsupported' | 'needs-pwa'>('default');
 
   useEffect(() => {
     getSettings().then(setSettings);
-    if ('Notification' in window) {
+    const support = getNotificationSupport();
+    if (support === 'supported') {
       setPermissionStatus(Notification.permission);
     } else {
-      setPermissionStatus('unsupported');
+      setPermissionStatus(support);
     }
   }, []);
 
@@ -68,6 +69,15 @@ export function SettingsPage() {
             <p className="mt-2 text-sm text-red-500">
               このブラウザは通知に対応していません
             </p>
+          )}
+
+          {permissionStatus === 'needs-pwa' && (
+            <div className="mt-2 rounded bg-blue-50 p-3 text-sm text-blue-800">
+              <p className="font-medium">通知を使うにはアプリをインストールしてください</p>
+              <p className="mt-1 text-blue-600">
+                ブラウザのメニューから「ホーム画面に追加」を選択すると、通知が使えるようになります
+              </p>
+            </div>
           )}
 
           {permissionStatus === 'default' && (

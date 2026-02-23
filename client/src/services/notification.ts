@@ -1,6 +1,17 @@
 import { db, getSettings } from '../db';
 import { getDaysUntilExpiry } from './expiry';
 
+export function getNotificationSupport(): 'supported' | 'unsupported' | 'needs-pwa' {
+  if ('Notification' in window) {
+    return 'supported';
+  }
+  // iOS Safari etc: notifications only work when installed as PWA
+  if ('serviceWorker' in navigator) {
+    return 'needs-pwa';
+  }
+  return 'unsupported';
+}
+
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!('Notification' in window)) {
     return false;
@@ -25,33 +36,41 @@ export async function checkAndNotify(): Promise<void> {
     .filter((p) => !p.consumed)
     .toArray();
 
+  const reg = await navigator.serviceWorker?.getRegistration();
+
   for (const product of products) {
     const daysLeft = getDaysUntilExpiry(product.expiryDate);
 
+    const notify = (body: string, tag: string) => {
+      const options = { body, icon: '/icons/icon-192.png', tag };
+      if (reg) {
+        reg.showNotification('もったいないアラーム', options);
+      } else {
+        new Notification('もったいないアラーム', options);
+      }
+    };
+
     for (const threshold of settings.notifyDaysBefore) {
       if (daysLeft === threshold) {
-        new Notification('もったいないアラーム', {
-          body: `${product.name} の賞味期限が${threshold}日後です`,
-          icon: '/icons/icon-192.png',
-          tag: `expiry-${product.id}-${threshold}`,
-        });
+        notify(
+          `${product.name} の賞味期限が${threshold}日後です`,
+          `expiry-${product.id}-${threshold}`,
+        );
       }
     }
 
     if (daysLeft === 0) {
-      new Notification('もったいないアラーム', {
-        body: `${product.name} の賞味期限は今日です！`,
-        icon: '/icons/icon-192.png',
-        tag: `expiry-${product.id}-today`,
-      });
+      notify(
+        `${product.name} の賞味期限は今日です！`,
+        `expiry-${product.id}-today`,
+      );
     }
 
     if (daysLeft < 0) {
-      new Notification('もったいないアラーム', {
-        body: `${product.name} の賞味期限が${Math.abs(daysLeft)}日過ぎています`,
-        icon: '/icons/icon-192.png',
-        tag: `expiry-${product.id}-expired`,
-      });
+      notify(
+        `${product.name} の賞味期限が${Math.abs(daysLeft)}日過ぎています`,
+        `expiry-${product.id}-expired`,
+      );
     }
   }
 }
