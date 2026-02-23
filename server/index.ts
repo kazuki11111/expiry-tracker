@@ -86,7 +86,8 @@ categoryは以下のいずれかを使用してください:
       return;
     }
 
-    const parsed = JSON.parse(textContent.text);
+    const jsonText = textContent.text.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '');
+    const parsed = JSON.parse(jsonText);
     res.json(parsed);
   } catch (error) {
     console.error('OCR error:', error);
