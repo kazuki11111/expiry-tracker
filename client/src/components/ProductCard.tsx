@@ -34,24 +34,24 @@ export function ProductCard({ product, onToggleConsumed, onDelete, onEdit }: Pro
             <span>期限: {product.expiryDate}</span>
           </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <button
             onClick={() => onToggleConsumed(product.id!)}
-            className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200"
             title={product.consumed ? '未消費に戻す' : '消費済みにする'}
           >
             {product.consumed ? '↩' : '✓'}
           </button>
           <button
             onClick={() => onEdit(product)}
-            className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-gray-400 hover:bg-gray-100 hover:text-blue-600 active:bg-blue-50"
             title="編集"
           >
             ✎
           </button>
           <button
             onClick={() => onDelete(product.id!)}
-            className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-gray-400 hover:bg-gray-100 hover:text-red-600 active:bg-red-50"
             title="削除"
           >
             ✕
