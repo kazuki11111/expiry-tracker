@@ -57,7 +57,7 @@ export function MemoPage() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="mb-4 block w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mb-4 block w-full rounded-lg border border-gray-300 p-3 text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           rows={10}
           placeholder="メモを入力..."
           autoFocus
