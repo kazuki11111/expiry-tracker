@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
