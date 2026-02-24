@@ -4,6 +4,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'ホーム', icon: '📋' },
   { to: '/scan', label: 'スキャン', icon: '📷' },
   { to: '/add', label: '追加', icon: '➕' },
+  { to: '/memo', label: 'メモ', icon: '📝' },
   { to: '/settings', label: '設定', icon: '⚙' },
 ];
 

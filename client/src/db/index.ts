@@ -1,10 +1,11 @@
 import Dexie, { type Table } from 'dexie';
-import type { Product, Receipt, Settings } from '../types';
+import type { Product, Receipt, Settings, Memo } from '../types';
 
 class AppDatabase extends Dexie {
   products!: Table<Product, number>;
   receipts!: Table<Receipt, number>;
   settings!: Table<Settings, number>;
+  memos!: Table<Memo, number>;
 
   constructor() {
     super('ReceiptExpiryApp');
@@ -12,6 +13,12 @@ class AppDatabase extends Dexie {
       products: '++id, category, expiryDate, consumed, receiptId',
       receipts: '++id, scannedAt',
       settings: 'id',
+    });
+    this.version(2).stores({
+      products: '++id, category, expiryDate, consumed, receiptId',
+      receipts: '++id, scannedAt',
+      settings: 'id',
+      memos: '++id, updatedAt',
     });
   }
 }

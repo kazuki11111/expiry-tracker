@@ -54,6 +54,13 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   other: 'その他',
 };
 
+export interface Memo {
+  id?: number;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface OcrResult {
   products: Array<{
     name: string;
