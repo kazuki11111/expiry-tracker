@@ -132,10 +132,10 @@ export function HomePage() {
                         deleteByPurchaseDate(group.date);
                       }
                     }}
-                    className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-gray-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100"
                     title="この日の商品をすべて削除"
                   >
-                    <span className="text-sm">✕</span>
+                    ✕
                   </button>
                 </div>
                 {!isCollapsed && (
