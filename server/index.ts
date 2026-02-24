@@ -20,12 +20,15 @@ const anthropic = new Anthropic({
 
 app.post('/api/ocr', async (req, res) => {
   try {
-    const { image } = req.body;
+    const { image, mediaType } = req.body;
 
     if (!image) {
       res.status(400).json({ message: '画像データが必要です' });
       return;
     }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const resolvedType = allowedTypes.includes(mediaType) ? mediaType : 'image/jpeg';
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -38,7 +41,7 @@ app.post('/api/ocr', async (req, res) => {
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: resolvedType,
                 data: image,
               },
             },

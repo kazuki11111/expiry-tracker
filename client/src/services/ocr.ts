@@ -2,12 +2,13 @@ import type { OcrResult } from '../types';
 
 export async function scanReceipt(file: File): Promise<OcrResult> {
   const base64 = await fileToBase64(file);
+  const mediaType = file.type || 'image/jpeg';
 
   const apiUrl = import.meta.env.VITE_API_URL || '';
   const response = await fetch(`${apiUrl}/api/ocr`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: base64 }),
+    body: JSON.stringify({ image: base64, mediaType }),
   });
 
   if (!response.ok) {
