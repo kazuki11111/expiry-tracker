@@ -3,6 +3,9 @@ import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 import { ProductForm } from '../components/ProductForm';
 import type { Product } from '../types';
+import { CATEGORY_LABELS } from '../types';
+
+type GroupMode = 'date' | 'category';
 
 function formatDateHeader(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
@@ -17,36 +20,56 @@ export function HomePage() {
   const [showConsumed, setShowConsumed] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { products, toggleConsumed, deleteProduct, deleteByPurchaseDate, updateProduct } = useProducts(showConsumed);
-  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
+  const [groupMode, setGroupMode] = useState<GroupMode>('date');
+  const [collapsedKeys, setCollapsedKeys] = useState<Set<string>>(new Set());
 
-  const toggleCollapse = useCallback((date: string) => {
-    setCollapsedDates((prev) => {
+  const toggleCollapse = useCallback((key: string) => {
+    setCollapsedKeys((prev) => {
       const next = new Set(prev);
-      if (next.has(date)) {
-        next.delete(date);
+      if (next.has(key)) {
+        next.delete(key);
       } else {
-        next.add(date);
+        next.add(key);
       }
       return next;
     });
   }, []);
 
-  const groupedProducts = useMemo(() => {
-    const groups: { date: string; label: string; items: Product[] }[] = [];
+  const groupedByDate = useMemo(() => {
+    const groups: { key: string; label: string; items: Product[] }[] = [];
     for (const product of products) {
       const last = groups[groups.length - 1];
-      if (last && last.date === product.purchaseDate) {
+      if (last && last.key === product.purchaseDate) {
         last.items.push(product);
       } else {
         groups.push({
-          date: product.purchaseDate,
-          label: formatDateHeader(product.purchaseDate),
+          key: product.purchaseDate,
+          label: `${formatDateHeader(product.purchaseDate)} 購入`,
           items: [product],
         });
       }
     }
     return groups;
   }, [products]);
+
+  const groupedByCategory = useMemo(() => {
+    const map = new Map<string, Product[]>();
+    for (const product of products) {
+      const existing = map.get(product.category);
+      if (existing) {
+        existing.push(product);
+      } else {
+        map.set(product.category, [product]);
+      }
+    }
+    return Array.from(map.entries()).map(([cat, items]) => ({
+      key: `cat-${cat}`,
+      label: CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS] || cat,
+      items,
+    }));
+  }, [products]);
+
+  const groups = groupMode === 'date' ? groupedByDate : groupedByCategory;
 
   const handleDelete = (id: number) => {
     if (confirm('この商品を削除しますか？')) {
@@ -81,7 +104,7 @@ export function HomePage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-800">
           商品一覧
           <span className="ml-2 text-sm font-normal text-gray-500">
@@ -99,6 +122,25 @@ export function HomePage() {
         </label>
       </div>
 
+      <div className="mb-4 flex rounded-lg bg-gray-100 p-1">
+        <button
+          onClick={() => { setGroupMode('date'); setCollapsedKeys(new Set()); }}
+          className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
+            groupMode === 'date' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'
+          }`}
+        >
+          日付順
+        </button>
+        <button
+          onClick={() => { setGroupMode('category'); setCollapsedKeys(new Set()); }}
+          className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
+            groupMode === 'category' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'
+          }`}
+        >
+          カテゴリ順
+        </button>
+      </div>
+
       {products.length === 0 ? (
         <div className="py-12 text-center text-gray-400">
           <p className="text-4xl">🛒</p>
@@ -107,36 +149,38 @@ export function HomePage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {groupedProducts.map((group) => {
-            const isCollapsed = collapsedDates.has(group.date);
+          {groups.map((group) => {
+            const isCollapsed = collapsedKeys.has(group.key);
             return (
-              <div key={group.date}>
+              <div key={group.key}>
                 <div className="mb-2 flex items-center gap-1">
                   <button
-                    onClick={() => toggleCollapse(group.date)}
+                    onClick={() => toggleCollapse(group.key)}
                     className="flex flex-1 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 active:bg-gray-200"
                   >
                     <span className={`text-xs text-gray-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}>
                       ▶
                     </span>
                     <span className="text-sm font-medium text-gray-700">
-                      {group.label} 購入
+                      {group.label}
                     </span>
                     <span className="text-xs text-gray-400">
                       {group.items.length}件
                     </span>
                   </button>
-                  <button
-                    onClick={() => {
-                      if (confirm(`${group.label}に購入した${group.items.length}件の商品をすべて削除しますか？`)) {
-                        deleteByPurchaseDate(group.date);
-                      }
-                    }}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-gray-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100"
-                    title="この日の商品をすべて削除"
-                  >
-                    ✕
-                  </button>
+                  {groupMode === 'date' && (
+                    <button
+                      onClick={() => {
+                        if (confirm(`${group.label}の${group.items.length}件の商品をすべて削除しますか？`)) {
+                          deleteByPurchaseDate(group.key);
+                        }
+                      }}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-gray-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100"
+                      title="この日の商品をすべて削除"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
                 {!isCollapsed && (
                   <div className="space-y-3">
